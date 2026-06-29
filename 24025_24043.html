@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>GitHub API</title>
+</head>
+<body style="text-align:center; margin-top:50px;">
+
+<h1>GitHub API - Autenticação</h1>
+
+<h3>Vitor Reis e Gustavo Henrique</h3>
+<h4>RMs: 24025 e 24043</h4>
+<p>Documentação: <a href="https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api" target="_blank">docs.github.com</a></p>
+
+<h2>É necessário requisitar um token que permita acesso à API do GitHub</h2>
+
+<p>
+  <input type="password" id="token" placeholder="Cole seu Token">
+  <button id="authBtn">Autenticar</button>
+</p>
+
+<p id="authResult"></p>
+
+<hr>
+
+<p>
+  <input type="text" id="username" placeholder="Username do GitHub">
+  <button id="repoBtn">Buscar repositórios</button>
+</p>
+
+<div id="repoList"></div>
+
+<script>
+const authBtn = document.getElementById('authBtn');
+const repoBtn = document.getElementById('repoBtn');
+
+authBtn.addEventListener('click', async () => {
+  const token = document.getElementById('token').value;
+
+  const res = await fetch('https://api.github.com/user', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  const data = await res.json();
+
+  document.getElementById('authResult').innerHTML =
+    `Autenticado como <b>${data.login}</b> (${data.name}) - ${data.public_repos} repositórios públicos`;
+
+    const username = data.login;
+    document.getElementById('username').value = username;
+
+
+});
+
+repoBtn.addEventListener('click', async () => {
+  const username = document.getElementById('username').value;
+  const token = document.getElementById('token').value;
+
+  const res = await fetch(`https://api.github.com/users/${username}/repos`, {
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  const data = await res.json();
+
+  let html = '<ul style="list-style:none; padding:0;">';
+  data.forEach(repo => {
+    html += `<li><a 
+      " target="_blank">${repo.full_name}</a></li>`;
+  });
+  html += '</ul>';
+
+  document.getElementById('repoList').innerHTML = html;
+});
+</script>
+
+</body>
+</html>
